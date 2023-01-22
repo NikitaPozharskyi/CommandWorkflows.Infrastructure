@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using TelegramBot.CommandWorkflows.Infrastructure.Exceptions;
 using TelegramBot.CommandWorkflows.Infrastructure.Settings;
 
 namespace TelegramBot.CommandWorkflows.Infrastructure.Resolver;
@@ -18,7 +19,7 @@ public class CommandClrTypeResolver : ICommandClrTypeResolver
 
         if (!isExists)
         {
-            throw new InvalidDataException($"There is no registered message with type {commandName}");
+            throw new InvalidCommandTypeException($"There is no registered message with type {commandName}");
         }
 
         return messageType!;

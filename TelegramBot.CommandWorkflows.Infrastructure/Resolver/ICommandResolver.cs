@@ -6,5 +6,5 @@ public interface ICommandResolver
 {
     ICommand GetCommand(string commandName);
     
-    bool IsExitCommand(string command);
+    IPermanentExitCommand? GetExitCommand(string commandName);
 }

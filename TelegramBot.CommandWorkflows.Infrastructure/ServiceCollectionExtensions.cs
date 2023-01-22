@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using TelegramBot.CommandWorkflows.Infrastructure.Abstraction.Commands;
 using TelegramBot.CommandWorkflows.Infrastructure.DependencyProvider;
 using TelegramBot.CommandWorkflows.Infrastructure.HistoryService;
 using TelegramBot.CommandWorkflows.Infrastructure.Resolver;
@@ -19,28 +20,38 @@ public static class ServiceCollectionExtensions
     }
 
     public static void RegisterCommand<T>(this IServiceCollection serviceCollection, string commandName)
+        where T : ICommand
     {
         serviceCollection.Configure<TelegramBotCommandAndWorkflowSettings>(
             _ => _.CommandDictionary.Add(commandName, typeof(T)));
-        
+
         serviceCollection.TryAddScoped(typeof(T));
     }
-    
-    public static void RegisterCommandWithWorkflows<T>(this IServiceCollection serviceCollection, string commandName, List<Type>? workflows)
+
+    public static void RegisterExitCommand<T>(this IServiceCollection serviceCollection, string commandName)
+        where T : ICommand
     {
         serviceCollection.Configure<TelegramBotCommandAndWorkflowSettings>(
             _ => _.CommandDictionary.Add(commandName, typeof(T)));
-        
+
+        serviceCollection.TryAddScoped(typeof(T));
+    }
+
+    
+    public static void RegisterCommandWithWorkflows<T>(this IServiceCollection serviceCollection, string commandName,
+        List<Type> workflows)
+        where T : ICommand
+    {
+        serviceCollection.Configure<TelegramBotCommandAndWorkflowSettings>(
+            _ => _.CommandDictionary.Add(commandName, typeof(T)));
+
         serviceCollection.TryAddScoped(typeof(T));
 
-        if (workflows != null)
+        serviceCollection.Configure<TelegramBotCommandAndWorkflowSettings>(_ =>
+            _.WorkflowDictionary.Add(typeof(T), workflows));
+        foreach (var workflow in workflows)
         {
-            serviceCollection.Configure<TelegramBotCommandAndWorkflowSettings>(_ =>
-                _.WorkflowDictionary.Add(typeof(T), workflows));
-            foreach (var workflow in workflows)
-            {
-                serviceCollection.TryAddScoped(workflow);
-            }
+            serviceCollection.TryAddScoped(workflow);
         }
     }
 }

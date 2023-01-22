@@ -8,7 +8,7 @@ public class CommandHistoryService : ICommandHistoryService
 
     public void AddCommandToHistory(ICommand command, long userId)
     {
-        var isExists = _commandHistory.TryGetValue(userId, out var value);
+        var isExists = _commandHistory.TryGetValue(userId, out _);
 
         if (isExists)
         {
@@ -23,7 +23,7 @@ public class CommandHistoryService : ICommandHistoryService
     {
         var isExists = _commandHistory.TryGetValue(userId, out var command);
 
-        return !isExists ? null : command;
+        return isExists ? command : null;
     }
 
     public void RemoveCommandFromHistory(long userId)
@@ -33,8 +33,8 @@ public class CommandHistoryService : ICommandHistoryService
 
     public bool IsExistsCommand(long userId)
     {
-        var isExists = _commandHistory.TryGetValue(userId, out var command);
+        var isExists = _commandHistory.TryGetValue(userId, out _);
         
-        return command != null;
+        return isExists;
     }
 }

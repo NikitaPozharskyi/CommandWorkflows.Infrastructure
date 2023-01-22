@@ -4,7 +4,7 @@ namespace TelegramBot.CommandWorkflows.Infrastructure.CommandExecutor;
 
 public interface ICommandExecutor
 {
-    Task<string> ExecuteCommand(string text, long userId);
+    Task<string> ExecuteCommandAsync(string text, long userId);
 
     IWorkflow? LastExecutableWorkflow { get; set; }
 }

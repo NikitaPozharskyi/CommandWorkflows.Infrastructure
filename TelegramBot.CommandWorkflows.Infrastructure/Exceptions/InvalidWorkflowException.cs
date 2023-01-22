@@ -1,8 +1,8 @@
 namespace TelegramBot.CommandWorkflows.Infrastructure.Exceptions;
 
-public class InvalidCommandException : Exception
+public class InvalidWorkflowException : Exception
 {
-    public InvalidCommandException(string message) 
+    public InvalidWorkflowException(string message) 
         : base(message)
     {
     }

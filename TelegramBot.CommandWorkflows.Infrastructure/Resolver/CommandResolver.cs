@@ -35,6 +35,8 @@ public class CommandResolver : ICommandResolver
         return workflowQueue;
     }
     
-    // todo: make it as Exit Command
-    public bool IsExitCommand(string command) => throw new NotImplementedException(nameof(IsExitCommand));
+    public IPermanentExitCommand? GetExitCommand(string commandName)
+    {
+        return _commandClrTypeResolver.IsCommandExists(commandName)? GetCommand(commandName) as IPermanentExitCommand : null;
+    }
 }

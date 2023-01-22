@@ -21,27 +21,20 @@ public class CommandExecutor : ICommandExecutor
         _logger = logger;
     }
 
-    public async Task<string> ExecuteCommand(string text, long userId)
+    public async Task<string> ExecuteCommandAsync(string text, long userId)
     {
-        // todo: Implement Admin, SuperAdmin commands execution with check.
         string response;
-        var commandModel = _commandHistoryService.GetCommandFromHistory(userId);
+        var commandFromHistory = _commandHistoryService.GetCommandFromHistory(userId);
         try
         {
-            // todo: Create ExitCommand.
-            // var isExitCommand = _commandConverter.IsExitCommand(text);
-            // if (isExitCommand)
-            // {
-            //     if (commandModel == null)
-            //     {
-            //         return "Нема з чого виходити!";
-            //     }
-            //
-            //     _commandHistoryService.RemoveCommandFromHistory(telegramUserId);
-            //     return "Вихід успішний.";
-            // }
-
-            if (commandModel == null)
+            var isExitCommand = _commandResolver.GetExitCommand(text);
+            if (isExitCommand != null)
+            {
+                _commandHistoryService.RemoveCommandFromHistory(userId);
+                commandFromHistory = null;
+            }
+            
+            if (commandFromHistory == null)
             {
                 var command = _commandResolver.GetCommand(text);
 
@@ -53,15 +46,15 @@ public class CommandExecutor : ICommandExecutor
                 return response;
             }
 
-            var workflow = commandModel.Workflows.Peek();
+            var workflow = commandFromHistory.Workflows.Peek();
             _logger.LogInformation("Start executing workflow {Workflow}...", workflow.GetType());
             // try to execute command.
             // If it's failed we don't want to pop the workflow. Just repeat prev steps
             response = await workflow.ExecuteAsync(text);
             // if command was successfully executed we deque it from list.
-            LastExecutableWorkflow = commandModel.Workflows.Dequeue();
+            LastExecutableWorkflow = commandFromHistory.Workflows.Dequeue();
 
-            if (!commandModel.Workflows.Any())
+            if (!commandFromHistory.Workflows.Any())
             {
                 _commandHistoryService.RemoveCommandFromHistory(userId);
             }
