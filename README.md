@@ -17,7 +17,8 @@ Following Command looks like:
     {
         public TestCommand()
         {
-            // you can put any registered service here.
+            // you can put any registered service from DI here.
+            // Example: _customService = customService (from constructor)
         }
         public Queue<IWorkflow> Workflows { get; set; }
         
