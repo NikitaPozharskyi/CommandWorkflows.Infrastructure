@@ -1,15 +1,18 @@
 # TelegramBot.CommandWorkflows.Infrastructure
-Command Workflow pattern for external providers which implement messages one by one exchanging 
+Command Workflow pattern for external providers which implement exchanging messages 'one by one'
 
 You can use it with any provider that use 'one by one' messaging to 
-recognize and make system remember previous call to save command logic chain
+recognize and make system remember previous call to save commands execution chain
+
+In other meaning it is library that makes application stateful and can save intermediate state between calls.
+Provicer can be TelegramBot. It is knows as non scalable application.
 
 ## Example of using library
-Here I create a simple console application and simulate one by one messaging to test this library.
+Here I create a simple console application and simulate 'one by one' messaging to test this library.
 First of all it should use Dependency Injection. It won't be working without it.
 We need to create a Command which implements ICommand or related to ICommand interfaces
 
-IAdminCommand, ISuperAdminCommand ...
+IAdminCommand, ISuperAdminCommand, IUserCommand
 
 Following Command looks like:
 
