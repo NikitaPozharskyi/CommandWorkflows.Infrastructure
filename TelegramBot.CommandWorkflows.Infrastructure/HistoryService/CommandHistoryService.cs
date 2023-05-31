@@ -28,13 +28,6 @@ public class CommandHistoryService : ICommandHistoryService
 
     public void RemoveCommandFromHistory(long userId)
     {
-        _commandHistory[userId] = null;
-    }
-
-    public bool IsExistsCommand(long userId)
-    {
-        var isExists = _commandHistory.TryGetValue(userId, out _);
-        
-        return isExists;
+        _commandHistory.Remove(userId);
     }
 }

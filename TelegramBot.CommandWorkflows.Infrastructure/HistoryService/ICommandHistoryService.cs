@@ -9,6 +9,4 @@ public interface ICommandHistoryService
     ICommand? GetCommandFromHistory(long userId);
     
     void RemoveCommandFromHistory(long userId);
-
-    bool IsExistsCommand(long userId);
 }

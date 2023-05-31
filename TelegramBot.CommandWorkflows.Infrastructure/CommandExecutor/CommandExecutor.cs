@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using TelegramBot.CommandWorkflows.Infrastructure.Abstraction;
-using TelegramBot.CommandWorkflows.Infrastructure.Exceptions;
 using TelegramBot.CommandWorkflows.Infrastructure.HistoryService;
 using TelegramBot.CommandWorkflows.Infrastructure.Resolver;
 
@@ -14,7 +13,7 @@ public class CommandExecutor : ICommandExecutor
 
     public IWorkflow? LastExecutableWorkflow { get; set; }
     public CommandExecutor(ICommandHistoryService commandHistoryService,
-        ICommandResolver commandResolver, ILogger<ICommandExecutor> logger)
+        ICommandResolver commandResolver, ILogger<CommandExecutor> logger)
     {
         _commandHistoryService = commandHistoryService;
         _commandResolver = commandResolver;
@@ -47,11 +46,10 @@ public class CommandExecutor : ICommandExecutor
             }
 
             var workflow = commandFromHistory.Workflows.Peek();
+            
             _logger.LogInformation("Start executing workflow {Workflow}...", workflow.GetType());
-            // try to execute command.
-            // If it's failed we don't want to pop the workflow. Just repeat prev steps
             response = await workflow.ExecuteAsync(text);
-            // if command was successfully executed we deque it from list.
+            
             LastExecutableWorkflow = commandFromHistory.Workflows.Dequeue();
 
             if (!commandFromHistory.Workflows.Any())
@@ -62,21 +60,9 @@ public class CommandExecutor : ICommandExecutor
         catch (Exception e)
         {
             _logger.LogError(e, "Exception was thrown");
-            response = ExceptionHandler(e);
+            throw;
         }
 
         return response;
-    }
-
-    private string ExceptionHandler(Exception e)
-    {
-        switch (e)
-        {
-            case InvalidDataException:
-            case InvalidCommandException:
-                return e.Message;
-            default:
-                return "Щось пішло не так, спробуйте ще раз";
-        }
     }
 }
