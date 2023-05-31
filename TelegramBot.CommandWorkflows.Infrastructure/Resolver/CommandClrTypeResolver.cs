@@ -19,13 +19,13 @@ public class CommandClrTypeResolver : ICommandClrTypeResolver
 
         if (!isExists)
         {
-            throw new InvalidCommandTypeException($"There is no registered message with type {commandName}");
+            throw new InvalidCommandTypeException($"There is no registered command with type {commandName}");
         }
 
         return messageType!;
     }
 
-    public List<Type> GetRelatedWorkflowsTypeList(Type commandType)
+    public IEnumerable<Type> GetRelatedWorkflowsTypeList(Type commandType)
     {
         var isExists = _commandAndWorkflowSettings.WorkflowDictionary.TryGetValue(commandType, out var workflows);
         

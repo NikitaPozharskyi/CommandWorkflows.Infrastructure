@@ -1,6 +1,7 @@
 using TelegramBot.CommandWorkflows.Infrastructure.Abstraction;
 using TelegramBot.CommandWorkflows.Infrastructure.Abstraction.Commands;
 using TelegramBot.CommandWorkflows.Infrastructure.DependencyProvider;
+using TelegramBot.CommandWorkflows.Infrastructure.Extensions;
 
 namespace TelegramBot.CommandWorkflows.Infrastructure.Resolver;
 
@@ -25,12 +26,8 @@ public class CommandResolver : ICommandResolver
     private Queue<IWorkflow> InitializeRelatedWorkflows(Type commandType)
     {
         var workflowTypes = _commandClrTypeResolver.GetRelatedWorkflowsTypeList(commandType);
-        var workflowQueue = new Queue<IWorkflow>();
         
-        foreach (var workflow in workflowTypes.Select(workflowType => _workflowAndCommandDependencyProvider.GetWorkflow(workflowType)))
-        {
-            workflowQueue.Enqueue(workflow);
-        }
+        var workflowQueue = workflowTypes.Select(workflowType => _workflowAndCommandDependencyProvider.GetWorkflow(workflowType)).ToQueue();
 
         return workflowQueue;
     }
