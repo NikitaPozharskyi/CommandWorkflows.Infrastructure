@@ -1,4 +1,4 @@
-﻿using TelegramBot.CommandWorkflows.Infrastructure.Abstraction;
+﻿using CommandWorkflows.Infrastructure.Abstraction;
 
 namespace CommandWorkflows.TestApplication;
 

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramBot.CommandWorkflows.Infrastructure", "TelegramBot.CommandWorkflows.Infrastructure\TelegramBot.CommandWorkflows.Infrastructure.csproj", "{C3141379-272C-40AF-904E-26AF657DB542}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandWorkflows.Infrastructure", "CommandWorkflows.Infrastructure\CommandWorkflows.Infrastructure.csproj", "{C3141379-272C-40AF-904E-26AF657DB542}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandWorkflows.TestApplication", "CommandWorkflows.TestApplication\CommandWorkflows.TestApplication.csproj", "{D2F1D9E9-A2F0-4B76-AC4F-DD85602170ED}"
 EndProject

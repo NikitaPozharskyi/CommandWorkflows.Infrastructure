@@ -1,7 +1,7 @@
 ﻿using CommandWorkflows.TestApplication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using TelegramBot.CommandWorkflows.Infrastructure;
+using CommandWorkflows.Infrastructure;
 
 const string testCommand = "Test Command";
 const string testCommand2 = "Test Command2";
@@ -10,7 +10,7 @@ const string exitCommand = "exit";
 using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
-        services.AddCommandRegistry();
+        services.AddCommandRegistry<long>();
         services.RegisterExitCommand<ExitCommand>(exitCommand);
         services.RegisterCommand<TestCommand2>(testCommand2);
         services.RegisterCommandWithWorkflows<TestCommand>(testCommand, new List<Type>

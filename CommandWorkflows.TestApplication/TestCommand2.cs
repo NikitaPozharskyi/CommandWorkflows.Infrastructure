@@ -1,5 +1,5 @@
-﻿using TelegramBot.CommandWorkflows.Infrastructure.Abstraction;
-using TelegramBot.CommandWorkflows.Infrastructure.Abstraction.Commands;
+﻿using CommandWorkflows.Infrastructure.Abstraction;
+using CommandWorkflows.Infrastructure.Abstraction.Commands;
 
 public class TestCommand2 : IDefaultCommand
 {
