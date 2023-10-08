@@ -80,7 +80,7 @@ The Program.cs file looks like:
     using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
-        services.AddCommandRegistry();
+        services.AddCommandRegistry<long>();
         services.RegisterExitCommand<ExitCommand>(exitCommand);
         services.RegisterCommand<TestCommand2>(testCommand2);
         services.RegisterCommandWithWorkflows<TestCommand>(testCommand, new List<Type>
