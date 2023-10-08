@@ -1,20 +1,20 @@
-# TelegramBot.CommandWorkflows.Infrastructure
-Command Workflow pattern for external providers which implement exchanging messages 'one by one'
+# CommandWorkflows.Infrastructure
+Command workflow pattern for external providers that implement exchanging messages 'one by one'
 
-You can use it with any provider that use 'one by one' messaging to 
-recognize and make system remember previous call to save commands execution chain
+You can use it with any provider that uses 'one-by-one' messaging to
+recognize and make the system remember previous calls to save commands execution chain
 
-In other meaning it is library that makes application stateful and can save intermediate state between calls.
-Provicer can be TelegramBot. It is knows as non scalable application.
+In other words, it is the library that makes the application stateful and can save intermediate states between calls.
+The provider can be a TelegramBot. It is known as a non-scalable application.
 
-## Example of using library
-Here I create a simple console application and simulate 'one by one' messaging to test this library.
-First of all it should use Dependency Injection. It won't be working without it.
-We need to create a Command which implements ICommand or related to ICommand interfaces
+## Example of using the library
+Here, I create a simple console application and simulate 'one-by-one' messaging to test this library.
+First of all, it should use dependency injection. It won't work without it.
+We need to create a command that implements ICommand or is related to ICommand interfaces.
 
-IAdminCommand, ISuperAdminCommand, IUserCommand
+IAdminCommand, ISuperAdminCommand and IUserCommand
 
-Following Command looks like:
+The following command looks like:
 
     public class TestCommand : IAdminCommand
     {
@@ -32,13 +32,13 @@ Following Command looks like:
             return Task.FromResult("ssd");
         }
     }
-As you can see we just implement the interface function and create Workflows
-variable which is needed for related workflows if they are existing.
+As you can see, we just implement the interface function and create workflows.
+variable that is needed for related workflows if they are existing.
 
-Then we can create workflows if this command should have some. 
-The key relation is Command -> step by step workflows to execute.
+Then we can create workflows if this command has any.
+The key relation is command->step-by step workflows to execute.
 
-Workflows looks like this:
+Workflows look like this:
 
     public class TestWorkflow : IWorkflow
     {
@@ -67,9 +67,9 @@ Workflows looks like this:
         }
     }
 
-We just implementing another interface and that's it. We can Add some services inside of 
-Command or Workflow because they are creating via Dependency Injection and all of services 
-inside of the constructors will be resolved.
+We're just implementing another interface, and that's it. We can add some services inside of
+Command or Workflow because they are created via dependency injection and all of the services
+inside the constructors will be resolved.
 
 The Program.cs file looks like:
 
@@ -107,9 +107,9 @@ The Program.cs file looks like:
     await host.StartAsync();
     
 
-As you can see to link Command and Workflow we just need to integrate in in ServiceCollection Extension =>
-RegisterCommandWithWorkflows<TestCommand>(...). This was implemented for flexibility so you can reuse your workflows 
-if some commands contains repeatable workflows.  
+As you can see, to link Command and Workflow, we just need to integrate them in the ServiceCollection Extension =>
+RegisterCommandWithWorkflows<TestCommand>(...). This was implemented for flexibility, so you can reuse your workflows.
+if some commands contain repeatable workflows.
 
 The rest of the Commands using in the Program.cs:
 
