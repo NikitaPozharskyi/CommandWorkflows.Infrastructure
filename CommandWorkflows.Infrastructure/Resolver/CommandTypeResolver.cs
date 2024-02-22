@@ -1,9 +1,11 @@
+using CommandWorkflows.Infrastructure.Abstraction;
 using CommandWorkflows.Infrastructure.Abstraction.Commands;
 using CommandWorkflows.Infrastructure.Abstraction.Enums;
 
 namespace CommandWorkflows.Infrastructure.Resolver;
 
 public class CommandTypeResolver : ICommandTypeResolver
+
 {
     private readonly ICommandResolver _commandResolver;
 
@@ -12,23 +14,23 @@ public class CommandTypeResolver : ICommandTypeResolver
         _commandResolver = commandResolver;
     }
     
-    public virtual CommandType GetCommandType(ICommand command, Func<ICommand, CommandType> typeSelector) => command switch
+    public virtual CommandType GetCommandType<TRequest, TResponse>(ICommand<TRequest, TResponse> command, Func<ICommand<TRequest, TResponse>, CommandType> typeSelector) where TRequest: IRequest => command switch
     {
-        IAdminCommand => CommandType.AdminCommand,
-        ISuperAdminCommand => CommandType.SuperAdminCommand,
-        IDefaultCommand => CommandType.DefaultCommand,
+        IAdminCommand<TRequest, TResponse> => CommandType.AdminCommand,
+        ISuperAdminCommand<TRequest, TResponse> => CommandType.SuperAdminCommand,
+        IDefaultCommand<TRequest, TResponse> => CommandType.DefaultCommand,
         _ => typeSelector(command)
     };
     
-    public virtual CommandType GetCommandType(string commandName, Func<ICommand, CommandType> typeSelector)
+    public virtual CommandType GetCommandType<TRequest, TResponse>(string commandName, Func<ICommand<TRequest, TResponse>, CommandType> typeSelector) where TRequest: IRequest
     {
-        var command = _commandResolver.GetCommand(commandName);
+        var command = _commandResolver.GetCommand<TRequest, TResponse>(commandName);
 
         return command switch
         {
-            IAdminCommand => CommandType.AdminCommand,
-            ISuperAdminCommand => CommandType.SuperAdminCommand,
-            IDefaultCommand => CommandType.DefaultCommand,
+            IAdminCommand<TRequest, TResponse> => CommandType.AdminCommand,
+            ISuperAdminCommand<TRequest, TResponse> => CommandType.SuperAdminCommand,
+            IDefaultCommand<TRequest, TResponse> => CommandType.DefaultCommand,
             _ => typeSelector(command)
         };
     }

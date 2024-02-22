@@ -14,14 +14,16 @@ public class WorkflowAndCommandDependencyProvider : IWorkflowAndCommandDependenc
         _serviceProvider = serviceProvider;
     }
 
-    public IWorkflow GetWorkflow(Type workflowType) 
+    public IWorkflow<TRequest, TResponse> GetWorkflow<TRequest, TResponse>(Type workflowType) where TRequest: IRequest
     {
-        return _serviceProvider.GetRequiredService(workflowType) as IWorkflow ?? throw new InvalidWorkflowException("Requested type is not a Workflow");
+        return _serviceProvider.GetRequiredService(workflowType) as IWorkflow<TRequest, TResponse> ?? throw new InvalidWorkflowException("Requested type is not a Workflow");
     }
 
-    public ICommand GetCommand(Type commandType)
+    public ICommand<TRequest, TResponse> GetCommand<TRequest, TResponse>(Type commandType) where TRequest: IRequest
     {
-        return _serviceProvider.GetRequiredService(commandType) as ICommand ?? throw new InvalidCommandException("Requested type is not a Command");
+        var requiredService = _serviceProvider.GetRequiredService(commandType);
+        var service = requiredService as ICommand<TRequest, TResponse>;
+        return service ?? throw new InvalidCommandException("Requested type is not a Command");
     }
     
     

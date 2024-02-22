@@ -1,6 +1,7 @@
 namespace CommandWorkflows.Infrastructure.Abstraction.Commands;
 
-public interface IDefaultCommand : ICommand
+public interface IDefaultCommand<TRequest, TResponse>: ICommand<TRequest, TResponse>
+    where TRequest: IRequest
 {
     
 }

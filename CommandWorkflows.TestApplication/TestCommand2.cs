@@ -1,14 +1,18 @@
 ﻿using CommandWorkflows.Infrastructure.Abstraction;
 using CommandWorkflows.Infrastructure.Abstraction.Commands;
+using CommandWorkflows.TestApplication.Models;
 
-public class TestCommand2 : IDefaultCommand
+public class TestCommand2 : IDefaultCommand <MyRequest, MyResponse>
 {
-    public Queue<IWorkflow> Workflows { get; set; }
+    public Queue<IWorkflow<MyRequest, MyResponse>> Workflows { get; set; }
     
     public IEnumerable<Type> ExecutableWorkflows { get; set; }
 
-    public Task<string> ExecuteAsync()
+    public Task<MyResponse> ExecuteAsync()
     {
-        return Task.FromResult("Command 2 Executing");
+        return Task.FromResult(new MyResponse
+        {
+            Message = "TestCommand2 executed"
+        });
     }
 }

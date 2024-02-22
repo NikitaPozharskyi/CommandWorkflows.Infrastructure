@@ -1,13 +1,17 @@
 ﻿using CommandWorkflows.Infrastructure.Abstraction;
+using CommandWorkflows.TestApplication.Models;
 
 namespace CommandWorkflows.TestApplication;
 
-public class TestWorkflow2 : IWorkflow
+public class TestWorkflow2 : IWorkflow<MyRequest, MyResponse>
 {
-    public Task<string> ExecuteAsync(string message)
+    public Task<MyResponse> ExecuteAsync(MyRequest message)
     {
-        Console.WriteLine($"Executing workflow... {message}");
+        Console.WriteLine($"Executing workflow... {message.Message}");
     
-        return Task.FromResult("name");
+        return Task.FromResult(new MyResponse
+        {
+            Message = message.Message
+        });
     }
 }

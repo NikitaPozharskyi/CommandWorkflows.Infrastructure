@@ -6,9 +6,9 @@ namespace CommandWorkflows.Infrastructure.Resolver;
 
 public class CommandClrTypeResolver : ICommandClrTypeResolver
 {
-    private readonly TelegramBotCommandAndWorkflowSettings _commandAndWorkflowSettings;
+    private readonly CommandAndWorkflowSettings _commandAndWorkflowSettings;
     
-    public CommandClrTypeResolver(IOptions<TelegramBotCommandAndWorkflowSettings> commandAndWorkflowSettings)
+    public CommandClrTypeResolver(IOptions<CommandAndWorkflowSettings> commandAndWorkflowSettings)
     {
         _commandAndWorkflowSettings = commandAndWorkflowSettings.Value;
     }
