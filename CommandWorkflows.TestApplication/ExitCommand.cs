@@ -1,12 +1,17 @@
 ﻿using CommandWorkflows.Infrastructure.Abstraction;
 using CommandWorkflows.Infrastructure.Abstraction.Commands;
+using CommandWorkflows.TestApplication.Models;
 
-public class ExitCommand : IPermanentExitCommand
+public class ExitCommand : IPermanentExitCommand<MyRequest, MyResponse>
+
 {
-    public Queue<IWorkflow> Workflows { get; set; }
+    public Queue<IWorkflow<MyRequest, MyResponse>> Workflows { get; set; }
     
-    public Task<string> ExecuteAsync()
+    public Task<MyResponse> ExecuteAsync()
     {
-        return Task.FromResult("Exited");
+        return Task.FromResult(new MyResponse
+        {
+            Message = "Exit command executed"
+        });
     }
 }

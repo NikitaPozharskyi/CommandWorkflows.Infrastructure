@@ -1,6 +1,7 @@
 namespace CommandWorkflows.Infrastructure.Abstraction;
 
-public interface IWorkflow
+public interface IWorkflow <in TRequest, TResponse>
+where TRequest: IRequest
 {
-    Task<string> ExecuteAsync(string message);
+    Task<TResponse> ExecuteAsync(TRequest message);
 }

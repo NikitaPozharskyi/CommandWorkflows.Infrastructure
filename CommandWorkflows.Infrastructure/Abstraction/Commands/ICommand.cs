@@ -1,8 +1,9 @@
 namespace CommandWorkflows.Infrastructure.Abstraction.Commands;
 
-public interface ICommand
+public interface ICommand<TRequest, TResponse>
+where TRequest: IRequest
 {
-    Queue<IWorkflow> Workflows { get; set; }
+    Queue<IWorkflow<TRequest, TResponse>> Workflows { get; set; }
 
-    public Task<string> ExecuteAsync();
+    public Task<TResponse> ExecuteAsync();
 }

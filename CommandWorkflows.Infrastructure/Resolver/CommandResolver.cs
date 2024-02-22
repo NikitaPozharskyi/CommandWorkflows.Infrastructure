@@ -15,25 +15,26 @@ public class CommandResolver : ICommandResolver
         _commandClrTypeResolver = commandClrTypeResolver;
         _workflowAndCommandDependencyProvider = workflowAndCommandDependencyProvider;
     }
-    public ICommand GetCommand(string commandName)
+    
+    public ICommand<TRequest, TResponse> GetCommand<TRequest, TResponse>(string commandName, int skip = 0) where TRequest : IRequest
     {
-        var command = _workflowAndCommandDependencyProvider.GetCommand(_commandClrTypeResolver.GetCommandType(commandName));
-        command.Workflows = InitializeRelatedWorkflows(command.GetType());
+        var command = _workflowAndCommandDependencyProvider.GetCommand<TRequest, TResponse>(_commandClrTypeResolver.GetCommandType(commandName));
+        command.Workflows = InitializeRelatedWorkflows<TRequest, TResponse>(command.GetType(), skip);
 
         return command;
     }
 
-    private Queue<IWorkflow> InitializeRelatedWorkflows(Type commandType)
+    private Queue<IWorkflow<TRequest, TResponse>> InitializeRelatedWorkflows<TRequest, TResponse>(Type commandType, int skip) where TRequest : IRequest
     {
         var workflowTypes = _commandClrTypeResolver.GetRelatedWorkflowsTypeList(commandType);
         
-        var workflowQueue = workflowTypes.Select(workflowType => _workflowAndCommandDependencyProvider.GetWorkflow(workflowType)).ToQueue();
+        var workflowQueue = workflowTypes.Skip(skip).Select(workflowType => _workflowAndCommandDependencyProvider.GetWorkflow<TRequest, TResponse>(workflowType)).ToQueue();
 
         return workflowQueue;
     }
     
-    public IPermanentExitCommand? GetExitCommand(string commandName)
+    public IPermanentExitCommand<TRequest, TResponse>? GetExitCommand<TRequest, TResponse>(string commandName) where TRequest : IRequest
     {
-        return _commandClrTypeResolver.IsCommandExists(commandName)? GetCommand(commandName) as IPermanentExitCommand : null;
+        return _commandClrTypeResolver.IsCommandExists(commandName) ? GetCommand<TRequest, TResponse>(commandName) as IPermanentExitCommand<TRequest, TResponse> : null;
     }
 }

@@ -5,8 +5,10 @@ namespace CommandWorkflows.Infrastructure.DependencyProvider;
 
 public interface IWorkflowAndCommandDependencyProvider
 {
-    public IWorkflow GetWorkflow(Type workflowType);
+    public IWorkflow<TRequest, TResponse> GetWorkflow<TRequest, TResponse>(Type workflowType)
+        where TRequest: IRequest;
     
-    public ICommand GetCommand(Type commandType);
+    public ICommand<TRequest, TResponse> GetCommand<TRequest, TResponse>(Type commandType)
+        where TRequest: IRequest;
 
 }

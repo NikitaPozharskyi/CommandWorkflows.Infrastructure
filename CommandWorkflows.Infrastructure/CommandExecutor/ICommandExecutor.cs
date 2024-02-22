@@ -5,7 +5,5 @@ namespace CommandWorkflows.Infrastructure.CommandExecutor;
 public interface ICommandExecutor<in TKey>
 where TKey: notnull
 {
-    Task<string> ExecuteCommandAsync(string text, TKey userId);
-
-    IWorkflow? LastExecutableWorkflow { get; set; }
+    Task<TResponse> ExecuteCommandAsync<TRequest, TResponse>(TRequest request, TKey userId) where TRequest: IRequest;
 }

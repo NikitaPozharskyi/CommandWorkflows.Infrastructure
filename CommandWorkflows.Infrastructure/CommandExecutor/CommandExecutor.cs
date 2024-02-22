@@ -12,7 +12,6 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
     private readonly ICommandResolver _commandResolver;
     private readonly ILogger<ICommandExecutor<TKey>> _logger;
 
-    public IWorkflow? LastExecutableWorkflow { get; set; }
     public CommandExecutor(ICommandHistoryService<TKey> commandHistoryService,
         ICommandResolver commandResolver, ILogger<CommandExecutor<TKey>> logger)
     {
@@ -21,13 +20,13 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
         _logger = logger;
     }
 
-    public async Task<string> ExecuteCommandAsync(string text, TKey userId)
+    public async Task<TResponse> ExecuteCommandAsync<TRequest, TResponse>(TRequest request, TKey userId) where TRequest: IRequest 
     {
-        string response;
-        var commandFromHistory = _commandHistoryService.GetCommandFromHistory(userId);
+        TResponse response;
+        var commandFromHistory = _commandHistoryService.GetCommandFromHistory<TRequest, TResponse>(userId);
         try
         {
-            var isExitCommand = _commandResolver.GetExitCommand(text);
+            var isExitCommand = _commandResolver.GetExitCommand<TRequest, TResponse>(request.Message);
             if (isExitCommand != null)
             {
                 _commandHistoryService.RemoveCommandFromHistory(userId);
@@ -36,22 +35,23 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
             
             if (commandFromHistory == null)
             {
-                var command = _commandResolver.GetCommand(text);
+                var command = _commandResolver.GetCommand<TRequest, TResponse>(request.Message);
 
                 response = await command.ExecuteAsync();
 
                 if (!command.Workflows.Any()) return response;
 
-                _commandHistoryService.AddCommandToHistory(command, userId);
+                _commandHistoryService.AddCommandToHistory(request.Message, userId);
                 return response;
             }
 
             var workflow = commandFromHistory.Workflows.Peek();
             
             _logger.LogInformation("Start executing workflow {Workflow}...", workflow.GetType());
-            response = await workflow.ExecuteAsync(text);
+            response = await workflow.ExecuteAsync(request);
             
-            LastExecutableWorkflow = commandFromHistory.Workflows.Dequeue();
+            commandFromHistory.Workflows.Dequeue();
+            _commandHistoryService.IncreaseWorkflowExecutionPosition(userId);
 
             if (!commandFromHistory.Workflows.Any())
             {

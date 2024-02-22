@@ -2,12 +2,15 @@
 using CommandWorkflows.Infrastructure.CommandExecutor;
 using CommandWorkflows.Infrastructure.HistoryService;
 using CommandWorkflows.Infrastructure.Resolver;
+using CommandWorkflows.TestApplication.Models;
 
 namespace CommandWorkflows.TestApplication;
 
 public class CustomCommandExecutor : CommandExecutor<long>
 {
-    public CustomCommandExecutor(ICommandHistoryService<long> commandHistoryService, ICommandResolver commandResolver, ILogger<CustomCommandExecutor> logger) : base(commandHistoryService, commandResolver, logger)
+    public CustomCommandExecutor(ICommandHistoryService<long> commandHistoryService,
+        ICommandResolver commandResolver, ILogger<CustomCommandExecutor> logger) : base(
+        commandHistoryService, commandResolver, logger)
     {
     }
 }
