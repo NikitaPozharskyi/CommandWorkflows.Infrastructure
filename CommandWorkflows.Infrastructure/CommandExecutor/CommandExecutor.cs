@@ -37,7 +37,7 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
             {
                 var command = _commandResolver.GetCommand<TRequest, TResponse>(request.Message);
 
-                response = await command.ExecuteAsync();
+                response = await command.ExecuteAsync(request);
 
                 if (!command.Workflows.Any()) return response;
 

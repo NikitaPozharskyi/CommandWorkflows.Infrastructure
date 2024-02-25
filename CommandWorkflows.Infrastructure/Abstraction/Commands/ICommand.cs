@@ -5,5 +5,5 @@ where TRequest: IRequest
 {
     Queue<IWorkflow<TRequest, TResponse>> Workflows { get; set; }
 
-    public Task<TResponse> ExecuteAsync();
+    public Task<TResponse> ExecuteAsync(TRequest request);
 }

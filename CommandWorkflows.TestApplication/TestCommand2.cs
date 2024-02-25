@@ -8,7 +8,7 @@ public class TestCommand2 : IDefaultCommand <MyRequest, MyResponse>
     
     public IEnumerable<Type> ExecutableWorkflows { get; set; }
 
-    public Task<MyResponse> ExecuteAsync()
+    public Task<MyResponse> ExecuteAsync(MyRequest request)
     {
         return Task.FromResult(new MyResponse
         {

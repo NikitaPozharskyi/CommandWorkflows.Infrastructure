@@ -6,7 +6,7 @@ namespace CommandWorkflows.TestApplication;
 public class TestCommand3 : IDefaultCommand<MyCustomRequest, MyCustomResponse>
 {
     public Queue<IWorkflow<MyCustomRequest, MyCustomResponse>> Workflows { get; set; }
-    public Task<MyCustomResponse> ExecuteAsync()
+    public Task<MyCustomResponse> ExecuteAsync(MyCustomRequest request)
     {
         return Task.FromResult<MyCustomResponse>(new MyCustomResponse
         {

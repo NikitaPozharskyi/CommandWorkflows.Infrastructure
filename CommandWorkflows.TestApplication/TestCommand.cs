@@ -7,7 +7,7 @@ namespace CommandWorkflows.TestApplication;
 public class TestCommand : IAdminCommand<MyRequest, MyResponse>
 {
     public Queue<IWorkflow<MyRequest, MyResponse>> Workflows { get; set; }
-    public Task<MyResponse> ExecuteAsync()
+    public Task<MyResponse> ExecuteAsync(MyRequest request)
     {
         Console.WriteLine("Executing command 1...");
     
