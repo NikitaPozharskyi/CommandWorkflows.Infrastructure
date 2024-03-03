@@ -28,7 +28,7 @@ public static class ServiceCollectionExtensions
         serviceCollection.Configure<CommandAndWorkflowSettings>(
             _ => _.CommandDictionary.Add(commandName, typeof(T)));
 
-        serviceCollection.TryAddScoped(typeof(T));
+        serviceCollection.TryAddSingleton(typeof(T));
     }
 
     public static void RegisterExitCommand<T, TRequest, TResponse>(this IServiceCollection serviceCollection, string commandName)
@@ -38,25 +38,23 @@ public static class ServiceCollectionExtensions
         serviceCollection.Configure<CommandAndWorkflowSettings>(
             _ => _.CommandDictionary.Add(commandName, typeof(T)));
 
-        serviceCollection.TryAddScoped(typeof(T));
+        serviceCollection.TryAddSingleton(typeof(T));
     }
 
     
-    public static void RegisterCommandWithWorkflows<T, TRequest, TResponse>(this IServiceCollection serviceCollection, string commandName,
-        List<Type> workflows)
+    public static void RegisterCommandWithWorkflows<T, TRequest, TResponse>(this IServiceCollection serviceCollection, string commandName, List<Type> workflows)
         where TRequest: IRequest
         where T : ICommand<TRequest, TResponse>
     {
         serviceCollection.Configure<CommandAndWorkflowSettings>(
             _ => _.CommandDictionary.Add(commandName, typeof(T)));
 
-        serviceCollection.TryAddScoped(typeof(T));
+        serviceCollection.TryAddSingleton(typeof(T));
 
-        serviceCollection.Configure<CommandAndWorkflowSettings>(_ =>
-            _.WorkflowDictionary.Add(typeof(T), workflows));
+        serviceCollection.Configure<CommandAndWorkflowSettings>(_ => _.WorkflowDictionary.Add(typeof(T), workflows));
         foreach (var workflow in workflows)
         {
-            serviceCollection.TryAddScoped(workflow);
+            serviceCollection.TryAddSingleton(workflow);
         }
     }
 }
