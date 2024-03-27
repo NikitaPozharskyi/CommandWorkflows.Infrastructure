@@ -1,13 +1,11 @@
-﻿using CommandWorkflows.Infrastructure.Abstraction;
-using CommandWorkflows.Infrastructure.Abstraction.Commands;
+﻿using CommandWorkflows.Infrastructure.Abstraction.Commands;
 using CommandWorkflows.TestApplication.Models;
 
 namespace CommandWorkflows.TestApplication;
 
-public class TestCommand : IAdminCommand<MyRequest, MyResponse>
+public class TestCommand : CommandAbstract<MyRequest, MyResponse>
 {
-    public Queue<IWorkflow<MyRequest, MyResponse>> Workflows { get; set; }
-    public Task<MyResponse> ExecuteAsync(MyRequest request)
+    public override Task<MyResponse> ExecuteAsync(MyRequest request)
     {
         Console.WriteLine("Executing command 1...");
     

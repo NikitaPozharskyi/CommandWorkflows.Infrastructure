@@ -5,14 +5,14 @@ using Microsoft.Extensions.Logging;
 
 namespace CommandWorkflows.Infrastructure.CommandExecutor;
 
-public class CommandExecutor<TKey> : ICommandExecutor<TKey> 
+public class CommandExecutor<TKey> : ICommandExecutor<TKey>
     where TKey : notnull
 {
     private readonly ICommandHistoryService<TKey> _commandHistoryService;
     private readonly ICommandResolver _commandResolver;
     private readonly ILogger<ICommandExecutor<TKey>> _logger;
 
-    public CommandExecutor(ICommandHistoryService<TKey> commandHistoryService,
+    protected CommandExecutor(ICommandHistoryService<TKey> commandHistoryService,
         ICommandResolver commandResolver, ILogger<CommandExecutor<TKey>> logger)
     {
         _commandHistoryService = commandHistoryService;
@@ -20,10 +20,15 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
         _logger = logger;
     }
 
-    public async Task<TResponse> ExecuteCommandAsync<TRequest, TResponse>(TRequest request, TKey userId) where TRequest: IRequest 
+    public async Task<TResponse> ExecuteCommandAsync<TRequest, TResponse>(TRequest request, TKey userId)
+        where TRequest : IRequest
     {
         TResponse response;
-        var commandFromHistory = _commandHistoryService.GetCommandFromHistory<TRequest, TResponse>(userId);
+        var commandMetadataFromHistory = _commandHistoryService.GetCommandFromHistory(userId);
+        var commandFromHistory = commandMetadataFromHistory is null
+            ? null
+            : _commandResolver.GetCommand<TRequest, TResponse>(commandMetadataFromHistory.CommandName,
+                commandMetadataFromHistory.Position);
         try
         {
             var isExitCommand = _commandResolver.GetExitCommand<TRequest, TResponse>(request.Message);
@@ -32,7 +37,7 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
                 _commandHistoryService.RemoveCommandFromHistory(userId);
                 commandFromHistory = null;
             }
-            
+
             if (commandFromHistory == null)
             {
                 var command = _commandResolver.GetCommand<TRequest, TResponse>(request.Message);
@@ -46,10 +51,10 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
             }
 
             var workflow = commandFromHistory.Workflows.Peek();
-            
+
             _logger.LogInformation("Start executing workflow {Workflow}...", workflow.GetType());
             response = await workflow.ExecuteAsync(request);
-            
+
             commandFromHistory.Workflows.Dequeue();
             _commandHistoryService.IncreaseWorkflowExecutionPosition(userId);
 

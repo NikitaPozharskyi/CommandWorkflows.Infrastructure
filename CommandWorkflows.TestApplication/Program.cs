@@ -14,15 +14,14 @@ using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddCommandRegistry<long>();
-        services.RegisterCommand<TestCommand3, MyCustomRequest, MyCustomResponse>(testCommand3);
-        services.RegisterExitCommand<ExitCommand, MyRequest, MyResponse>(exitCommand);
-        services.RegisterCommand<TestCommand2, MyRequest, MyResponse>(testCommand2);
-        services.RegisterCommandWithWorkflows<TestCommand, MyRequest, MyResponse>(testCommand, new List<Type>
-        {
-            typeof(TestWorkflow),
-            typeof(TestWorkflow2)
-        });
-    
+        services.RegisterCommand<TestCommand3>(testCommand3, ServiceLifetime.Scoped);
+        services.RegisterCommand<ExitCommand>(exitCommand, ServiceLifetime.Scoped);
+        services.RegisterCommand<TestCommand2>(testCommand2, ServiceLifetime.Scoped);
+        services
+            .RegisterCommand<TestCommand>(testCommand, ServiceLifetime.Scoped)
+            .RegisterWorkflow<TestWorkflow>()
+            .RegisterWorkflow<TestWorkflow2>();
+        
         services.AddScoped<CustomCommandExecutor>();
     })
     .Build();

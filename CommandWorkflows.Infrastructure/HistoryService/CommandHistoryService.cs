@@ -1,19 +1,9 @@
-using CommandWorkflows.Infrastructure.Abstraction;
-using CommandWorkflows.Infrastructure.Abstraction.Commands;
-using CommandWorkflows.Infrastructure.Resolver;
-
 namespace CommandWorkflows.Infrastructure.HistoryService;
 
 public class CommandHistoryService<TKey> : ICommandHistoryService<TKey>
     where TKey: notnull
 {
-    private readonly ICommandResolver _commandResolver;
-    private readonly Dictionary<TKey, (string command, int position)> _commandHistory = new();
-
-    public CommandHistoryService(ICommandResolver commandResolver)
-    {
-        _commandResolver = commandResolver;
-    }
+    private readonly Dictionary<TKey, CommandMetadata> _commandHistory = new();
 
     public void AddCommandToHistory(string command, TKey userId)
     {
@@ -21,25 +11,25 @@ public class CommandHistoryService<TKey> : ICommandHistoryService<TKey>
 
         if (isExists)
         {
-            _commandHistory[userId] = new ValueTuple<string, int>(command, 0);
+            _commandHistory[userId] = new CommandMetadata(command, 0);
             return;
         }
 
-        _commandHistory.Add(userId, new ValueTuple<string, int>(command, 0));
+        _commandHistory.Add(userId, new CommandMetadata(command, 0));
     }
 
-    public ICommand<TRequest, TResponse>? GetCommandFromHistory<TRequest, TResponse>(TKey userId) where TRequest: IRequest
+    public CommandMetadata? GetCommandFromHistory(TKey userId)
     {
-        var isExists = _commandHistory.TryGetValue(userId, out var command);
+        var isExists = _commandHistory.TryGetValue(userId, out var commandMetadata);
 
-        return isExists ? _commandResolver.GetCommand<TRequest, TResponse>(command!.command, command.position) : null;
+        return isExists ? commandMetadata : null;
     }
 
     public void IncreaseWorkflowExecutionPosition(TKey userId)
     {
         var isExists = _commandHistory.TryGetValue(userId, out var command);
         if (!isExists) return;
-        command!.position++;
+        command!.Position++;
         _commandHistory[userId] = command;
     }
 
