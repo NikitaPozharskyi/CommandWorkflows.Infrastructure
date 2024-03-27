@@ -24,13 +24,13 @@ public class ServiceCollectionHelper(
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddCommandRegistry<TUserId>(this IServiceCollection serviceCollection)
+    public static void AddCommandRegistry<TUserId>(this IServiceCollection serviceCollection, ServiceLifetime workflowAndCommandDependencyProviderLifetime)
         where TUserId : notnull
     {
         serviceCollection.TryAddSingleton<ICommandHistoryService<TUserId>, CommandHistoryService<TUserId>>();
-        serviceCollection.TryAddSingleton<ICommandResolver, CommandResolver>();
         serviceCollection.TryAddSingleton<ICommandClrTypeResolver, CommandClrTypeResolver>();
-        serviceCollection.TryAddSingleton<IWorkflowAndCommandDependencyProvider, WorkflowAndCommandDependencyProvider>();
+        serviceCollection.TryAdd(new ServiceDescriptor(typeof(ICommandResolver), typeof(CommandResolver), workflowAndCommandDependencyProviderLifetime));
+        serviceCollection.TryAdd(new ServiceDescriptor(typeof(IWorkflowAndCommandDependencyProvider), typeof(WorkflowAndCommandDependencyProvider), workflowAndCommandDependencyProviderLifetime));
     }
 
     [Obsolete("Please use RegisterCommand<T>")]

@@ -13,7 +13,7 @@ const string exitCommand = "exit";
 using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
-        services.AddCommandRegistry<long>();
+        services.AddCommandRegistry<long>(ServiceLifetime.Scoped);
         services.RegisterCommand<TestCommand3>(testCommand3, ServiceLifetime.Scoped);
         services.RegisterCommand<ExitCommand>(exitCommand, ServiceLifetime.Scoped);
         services.RegisterCommand<TestCommand2>(testCommand2, ServiceLifetime.Scoped);
