@@ -1,7 +1,6 @@
 ﻿using CommandWorkflows.TestApplication;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using CommandWorkflows.Infrastructure;
 using CommandWorkflows.Infrastructure.Extensions;
 using CommandWorkflows.TestApplication.Models;
 
@@ -69,14 +68,3 @@ await commandExecutor.ExecuteCommandAsync<MyRequest, MyResponse>(new MyRequest
 
 await host.StartAsync();
 await host.StopAsync();
-
-var list = new List<int>
-{
-    1,
-    2,
-    3,
-    4
-};
-
-var queue = list.ToQueue();
-Console.WriteLine(queue.Peek());

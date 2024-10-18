@@ -1,21 +1,18 @@
 namespace CommandWorkflows.Infrastructure.HistoryService;
 
 public class CommandHistoryService<TKey> : ICommandHistoryService<TKey>
-    where TKey: notnull
+    where TKey : notnull
 {
     private readonly Dictionary<TKey, CommandMetadata> _commandHistory = new();
 
-    public void AddCommandToHistory(string command, TKey userId)
+    public void AddCommandToHistory(string command, TKey userId, Type type)
     {
-        var isExists = _commandHistory.TryGetValue(userId, out _);
+        var isAdded = _commandHistory.TryAdd(userId, new CommandMetadata(0, type));
 
-        if (isExists)
+        if (!isAdded)
         {
-            _commandHistory[userId] = new CommandMetadata(command, 0);
-            return;
+            _commandHistory[userId] = new CommandMetadata(0, type);
         }
-
-        _commandHistory.Add(userId, new CommandMetadata(command, 0));
     }
 
     public CommandMetadata? GetCommandFromHistory(TKey userId)

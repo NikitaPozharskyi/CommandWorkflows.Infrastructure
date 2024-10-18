@@ -2,6 +2,8 @@
 using CommandWorkflows.Infrastructure.Abstraction.Commands;
 using CommandWorkflows.TestApplication.Models;
 
+namespace CommandWorkflows.TestApplication;
+
 public class ExitCommand : IPermanentExitCommand<MyRequest, MyResponse>
 {
     public Queue<IWorkflow<MyRequest, MyResponse>> Workflows { get; set; }
