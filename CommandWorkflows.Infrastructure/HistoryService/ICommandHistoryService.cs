@@ -2,7 +2,7 @@ namespace CommandWorkflows.Infrastructure.HistoryService;
 
 public interface ICommandHistoryService<in TKey>
 {
-    void AddCommandToHistory(string command, TKey userId);
+    void AddCommandToHistory(string command, TKey userId, Type type);
 
     CommandMetadata? GetCommandFromHistory(TKey userId);
 

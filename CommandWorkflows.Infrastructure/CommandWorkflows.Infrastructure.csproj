@@ -10,8 +10,9 @@
         <RepositoryUrl>https://github.com/NikitaPozharskyi/TelegramBot.CommandWorkflows.Infrastructure</RepositoryUrl>
         <PackageTags>TelegramBot CommandWorkflow OneByOneMessageHandling ConsistentCommandWorkflowExecuting</PackageTags>
         <PackageReleaseNotes>Added Command Executor with all related Services to keep tracking each command and workflow triggered by user</PackageReleaseNotes>
-        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
+        <Version>1.0.9</Version>
     </PropertyGroup>
 
     <ItemGroup>

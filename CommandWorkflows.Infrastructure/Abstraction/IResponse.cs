@@ -1,6 +1,3 @@
 namespace CommandWorkflows.Infrastructure.Abstraction;
 
-public interface IResponse
-{
-    
-}
+public interface IResponse;

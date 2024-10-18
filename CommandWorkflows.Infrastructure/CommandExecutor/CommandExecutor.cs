@@ -27,46 +27,41 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
         var commandMetadataFromHistory = _commandHistoryService.GetCommandFromHistory(userId);
         var commandFromHistory = commandMetadataFromHistory is null
             ? null
-            : _commandResolver.GetCommand<TRequest, TResponse>(commandMetadataFromHistory.CommandName,
+            : _commandResolver.GetCommand<TRequest, TResponse>(
+                commandMetadataFromHistory.CommandType,
                 commandMetadataFromHistory.Position);
-        try
+
+        var isExitCommand = _commandResolver.GetExitCommand<TRequest, TResponse>(request.Message);
+
+        if (isExitCommand != null)
         {
-            var isExitCommand = _commandResolver.GetExitCommand<TRequest, TResponse>(request.Message);
-            if (isExitCommand != null)
-            {
-                _commandHistoryService.RemoveCommandFromHistory(userId);
-                commandFromHistory = null;
-            }
-
-            if (commandFromHistory == null)
-            {
-                var command = _commandResolver.GetCommand<TRequest, TResponse>(request.Message);
-
-                response = await command.ExecuteAsync(request);
-
-                if (!command.Workflows.Any()) return response;
-
-                _commandHistoryService.AddCommandToHistory(request.Message, userId);
-                return response;
-            }
-
-            var workflow = commandFromHistory.Workflows.Peek();
-
-            _logger.LogInformation("Start executing workflow {Workflow}...", workflow.GetType());
-            response = await workflow.ExecuteAsync(request);
-
-            commandFromHistory.Workflows.Dequeue();
-            _commandHistoryService.IncreaseWorkflowExecutionPosition(userId);
-
-            if (!commandFromHistory.Workflows.Any())
-            {
-                _commandHistoryService.RemoveCommandFromHistory(userId);
-            }
+            _commandHistoryService.RemoveCommandFromHistory(userId);
+            commandFromHistory = null;
         }
-        catch (Exception e)
+
+        if (commandFromHistory == null)
         {
-            _logger.LogError(e, "Exception was thrown");
-            throw;
+            var command = _commandResolver.GetCommand<TRequest, TResponse>(request.Message);
+
+            response = await command.ExecuteAsync(request);
+
+            if (command.Workflows.Count == 0) return response;
+
+            _commandHistoryService.AddCommandToHistory(request.Message, userId, command.GetType());
+            return response;
+        }
+
+        var workflow = commandFromHistory.Workflows.Peek();
+
+        _logger.LogInformation("Start executing workflow {Workflow}...", workflow.GetType());
+        response = await workflow.ExecuteAsync(request);
+
+        commandFromHistory.Workflows.Dequeue();
+        _commandHistoryService.IncreaseWorkflowExecutionPosition(userId);
+
+        if (commandFromHistory.Workflows.Count == 0)
+        {
+            _commandHistoryService.RemoveCommandFromHistory(userId);
         }
 
         return response;

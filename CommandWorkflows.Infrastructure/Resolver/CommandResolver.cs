@@ -19,16 +19,27 @@ public class CommandResolver : ICommandResolver
     public ICommand<TRequest, TResponse> GetCommand<TRequest, TResponse>(string commandName, int skip = 0) where TRequest : IRequest
     {
         var command = _workflowAndCommandDependencyProvider.GetCommand<TRequest, TResponse>(_commandClrTypeResolver.GetCommandType(commandName));
-        command.Workflows = InitializeRelatedWorkflows<TRequest, TResponse>(command.GetType(), skip);
+        command.Workflows = InitializeWorkflows<TRequest, TResponse>(command.GetType(), skip);
+
+        return command;
+    }
+    
+    public ICommand<TRequest, TResponse> GetCommand<TRequest, TResponse>(Type commandType, int skip = 0) where TRequest : IRequest
+    {
+        var command = _workflowAndCommandDependencyProvider.GetCommand<TRequest, TResponse>(commandType);
+        command.Workflows = InitializeWorkflows<TRequest, TResponse>(command.GetType(), skip);
 
         return command;
     }
 
-    private Queue<IWorkflow<TRequest, TResponse>> InitializeRelatedWorkflows<TRequest, TResponse>(Type commandType, int skip) where TRequest : IRequest
+    private Queue<IWorkflow<TRequest, TResponse>> InitializeWorkflows<TRequest, TResponse>(Type commandType, int skip) where TRequest : IRequest
     {
         var workflowTypes = _commandClrTypeResolver.GetRelatedWorkflowsTypeList(commandType);
         
-        var workflowQueue = workflowTypes.Skip(skip).Select(workflowType => _workflowAndCommandDependencyProvider.GetWorkflow<TRequest, TResponse>(workflowType)).ToQueue();
+        var workflowQueue = workflowTypes
+            .Skip(skip)
+            .Select(workflowType => _workflowAndCommandDependencyProvider.GetWorkflow<TRequest, TResponse>(workflowType))
+            .ToQueue();
 
         return workflowQueue;
     }
