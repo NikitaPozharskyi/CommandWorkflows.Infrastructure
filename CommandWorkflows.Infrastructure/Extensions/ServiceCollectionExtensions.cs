@@ -54,7 +54,7 @@ public static class ServiceCollectionExtensions
     }
     private static bool VerifyCommandType(Type? type)
     {
-        if (type.GetGenericTypeDefinition() == typeof(ICommand<,>))
+        if (type!.GetGenericTypeDefinition() == typeof(ICommand<,>))
         {
             return true;
         }

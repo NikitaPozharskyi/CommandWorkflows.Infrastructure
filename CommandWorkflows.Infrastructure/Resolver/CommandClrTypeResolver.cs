@@ -29,7 +29,7 @@ public class CommandClrTypeResolver : ICommandClrTypeResolver
     {
         var isExists = _commandAndWorkflowSettings.WorkflowDictionary.TryGetValue(commandType, out var workflows);
         
-        return !isExists ? new List<Type>() : workflows!;
+        return !isExists ? [] : workflows!;
     }
 
     public bool IsCommandExists(string commandName) =>

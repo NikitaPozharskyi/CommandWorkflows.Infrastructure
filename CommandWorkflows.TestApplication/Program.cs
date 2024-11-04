@@ -13,9 +13,18 @@ using var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddCommandRegistry<long>(ServiceLifetime.Scoped);
+        
         services.RegisterCommand<TestCommand3>(testCommand3, ServiceLifetime.Scoped);
         services.RegisterCommand<ExitCommand>(exitCommand, ServiceLifetime.Scoped);
         services.RegisterCommand<TestCommand2>(testCommand2, ServiceLifetime.Scoped);
+        
+        // TestCommand1 - TestWorkflow - TestWorkflow2 - TestWorkflow3. -> TestCommand1
+        // TestCommand2
+        // TestCommand3
+        // TestCommand4
+        // TestCommand5
+        // TestCommand6
+        
         services
             .RegisterCommand<TestCommand>(testCommand, ServiceLifetime.Scoped)
             .RegisterWorkflow<TestWorkflow>()
@@ -24,6 +33,8 @@ using var host = Host.CreateDefaultBuilder(args)
         services.AddScoped<CustomCommandExecutor>();
     })
     .Build();
+
+// TestCommand - TestWorkflow - TestWorkflow2
 
 var commandExecutor = host.Services.GetRequiredService<CustomCommandExecutor>();
 
