@@ -23,7 +23,6 @@ public class CommandResolver : ICommandResolver
 
         return command;
     }
-    
     public ICommand<TRequest, TResponse> GetCommand<TRequest, TResponse>(Type commandType, int skip = 0) where TRequest : IRequest
     {
         var command = _workflowAndCommandDependencyProvider.GetCommand<TRequest, TResponse>(commandType);

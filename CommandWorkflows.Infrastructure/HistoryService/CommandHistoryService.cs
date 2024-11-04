@@ -5,13 +5,15 @@ public class CommandHistoryService<TKey> : ICommandHistoryService<TKey>
 {
     private readonly Dictionary<TKey, CommandMetadata> _commandHistory = new();
 
-    public void AddCommandToHistory(string command, TKey userId, Type type)
+    public void AddCommandToHistory(TKey userId, Type type)
     {
-        var isAdded = _commandHistory.TryAdd(userId, new CommandMetadata(0, type));
+        const int initialPosition = 0;
+        
+        var isAdded = _commandHistory.TryAdd(userId, new CommandMetadata(initialPosition, type));
 
         if (!isAdded)
         {
-            _commandHistory[userId] = new CommandMetadata(0, type);
+            _commandHistory[userId] = new CommandMetadata(initialPosition, type);
         }
     }
 
@@ -22,7 +24,7 @@ public class CommandHistoryService<TKey> : ICommandHistoryService<TKey>
         return isExists ? commandMetadata : null;
     }
 
-    public void IncreaseWorkflowExecutionPosition(TKey userId)
+    public void MoveForward(TKey userId)
     {
         var isExists = _commandHistory.TryGetValue(userId, out var command);
         if (!isExists) return;

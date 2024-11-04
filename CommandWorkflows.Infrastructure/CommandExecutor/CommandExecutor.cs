@@ -47,7 +47,7 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
 
             if (command.Workflows.Count == 0) return response;
 
-            _commandHistoryService.AddCommandToHistory(request.Message, userId, command.GetType());
+            _commandHistoryService.AddCommandToHistory(userId, command.GetType());
             return response;
         }
 
@@ -57,7 +57,7 @@ public class CommandExecutor<TKey> : ICommandExecutor<TKey>
         response = await workflow.ExecuteAsync(request);
 
         commandFromHistory.Workflows.Dequeue();
-        _commandHistoryService.IncreaseWorkflowExecutionPosition(userId);
+        _commandHistoryService.MoveForward(userId);
 
         if (commandFromHistory.Workflows.Count == 0)
         {
