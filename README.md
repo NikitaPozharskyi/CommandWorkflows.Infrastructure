@@ -1,96 +1,142 @@
 # CommandFlowEngine
 
-**CommandFlowEngine** is a flexible .NET library for orchestrating command-based workflows with pluggable state management and optional persistence.
+`CommandFlowEngine` is a .NET library for stateful, command-driven flows.
 
-It is designed to help developers manage asynchronous, non-sequential user requests in a clean and modular way. Whether you're building a chatbot, an interactive app, or a distributed service, this library gives you the tools to keep your flow logic consistent and testable.
+It lets you:
+- map a text command (for example `"start"` or `"help"`) to a command class
+- attach ordered workflows to that command
+- keep per-user progress in command history
+- continue execution step-by-step on later messages
 
----
+This is useful for chatbots, assistants, and guided multi-step interactions.
 
-## ✨ Features
+## What This Repo Contains
 
-- **Command & Workflow Interfaces:** Define modular, composable workflows using `ICommand` and `IWorkflow`.
-- **Pluggable State Handling:** Use the built-in in-memory store or implement your own persistence layer (e.g., MongoDB) to support durable workflows.
-- **Error-Resilient:** Designed to recover and continue workflows even after service restarts (with your custom state store).
-- **Decoupled Design:** Keeps business logic separate from infrastructure concerns.
-- **Lightweight & Extensible:** No unnecessary dependencies; easily integrates into existing projects.
+- `CommandFlowEngine`: core library
+- `CommandFlowEngine.TestApplication`: sample console app
+- `CommandFlowEngine.Tests`: NUnit tests for command execution flow
 
----
+## How It Works
 
-## 🚀 Getting Started
+1. A request (`IRequest`) arrives with a `Message`.
+2. The engine checks if that user already has an active command in history.
+3. If no active command exists:
+   - `Message` is treated as a command keyword.
+   - The command is resolved and executed.
+   - If workflows are configured for that command, the command is stored in history.
+4. If an active command exists:
+   - the next workflow in that command's queue is executed.
+   - history position is advanced.
+   - when all workflows are done, history is cleared for that user.
+5. If the incoming message resolves to a command implementing `IPermanentExitCommand<,>`, history is cleared first.
 
-### 1️⃣ Install
+## Core Types
 
-```bash
-dotnet add package CommandFlowEngine
-```
-### 2️⃣ Define a Command
-```bash
-public class StartOrderCommand : ICommand
+```csharp
+public interface IRequest
 {
-    public string OrderId { get; set; }
-    public string CustomerId { get; set; }
+    string Message { get; set; }
+}
+
+public interface ICommand<TRequest, TResponse>
+    where TRequest : IRequest
+{
+    Queue<IWorkflow<TRequest, TResponse>> Workflows { get; set; }
+    Task<TResponse> ExecuteAsync(TRequest request);
+}
+
+public interface IWorkflow<in TRequest, TResponse>
+    where TRequest : IRequest
+{
+    Task<TResponse> ExecuteAsync(TRequest message);
 }
 ```
 
-### 3️⃣ Define a Workflow
-```bash
-public class OrderWorkflow : IWorkflow
+## Quick Start
+
+### 1. Register engine services
+
+```csharp
+services.AddCommandRegistry<long>(ServiceLifetime.Scoped);
+```
+
+### 2. Create request/response models
+
+```csharp
+public class MyRequest : IRequest
 {
-    public async Task HandleAsync(ICommand command, CancellationToken cancellationToken)
+    public string Message { get; set; } = string.Empty;
+}
+
+public class MyResponse
+{
+    public string Message { get; set; } = string.Empty;
+}
+```
+
+### 3. Implement a command
+
+```csharp
+public class StartCommand : CommandAbstract<MyRequest, MyResponse>
+{
+    public override Task<MyResponse> ExecuteAsync(MyRequest request)
     {
-        if (command is StartOrderCommand startOrder)
-        {
-            // Handle starting an order
-            Console.WriteLine($"Starting order {startOrder.OrderId} for customer {startOrder.CustomerId}");
-        }
+        return Task.FromResult(new MyResponse { Message = "Start command executed" });
     }
 }
 ```
 
-### 4️⃣ Setup DI
-```bash
-  services.AddCommandRegistry<long>(ServiceLifetime.Scoped);
-  services
-      .RegisterCommand<StartOrderCommand>("order", ServiceLifetime.Scoped)
-      .RegisterWorkflow<OrderWorkflow>()
-```
+### 4. Implement workflows
 
-### 5️⃣ Wire It Up
-```bash
-
-var result3 = await _commandExecutor.ExecuteCommandAsync<StartOrderCommand, Response>(new StartOrderCommand
+```csharp
+public class CollectNameWorkflow : IWorkflow<MyRequest, MyResponse>
 {
-    Message = "user Input",
-    OrderId = Guid.NewGuid(),
-    CustomerId = userId,
-}, userId);
-```
-
-## 🧩 Extending Persistence
-By default, the library uses in-memory state, but you can plug in your own persistence layer (e.g., MongoDB, Redis, SQL) to make workflows durable across restarts.
-
-Example of your own IStateStore implementation (interface not included by default):
-
-```bash
-public class MongoStateStore : IStateStore
-{
-    // Implement saving and loading state from MongoDB
+    public Task<MyResponse> ExecuteAsync(MyRequest message)
+    {
+        return Task.FromResult(new MyResponse { Message = $"Name: {message.Message}" });
+    }
 }
 ```
 
-## 💡 Why Use This?
-- Simplifies the orchestration of multi-step workflows
-- Enables pluggable state management (volatile or persistent)
-- Keeps your architecture clean and testable
-- Ideal for chatbots, transactional services, and stateful APIs
+### 5. Register commands and workflows
 
-## 🔧 Roadmap
-- Built-in support for persistence adapters (MongoDB, SQL, etc.)
-- Enhanced error handling & retries
-- NuGet packaging
-- Sample projects
+```csharp
+services
+    .RegisterCommand<StartCommand>("start", ServiceLifetime.Scoped)
+    .RegisterWorkflow<CollectNameWorkflow>();
+```
 
-## 🤝 Contributing
-PRs and ideas are welcome! Feel free to open an issue or submit a pull request.
+### 6. Execute
 
-#.NET #C# #workflow #command pattern #stateful processing #request handler #asynchronous workflows #chatbot framework #middleware #orchestration
+```csharp
+var response = await commandExecutor.ExecuteCommandAsync<MyRequest, MyResponse>(
+    new MyRequest { Message = "start" },
+    userId: 42);
+```
+
+## Exit Command
+
+To define a command that clears active flow state, implement:
+
+```csharp
+IPermanentExitCommand<TRequest, TResponse>
+```
+
+If the incoming message maps to that command keyword, command history for that user is removed.
+
+## Build And Run
+
+```bash
+dotnet build CommandWorkflows.Infrastructure.sln
+dotnet test CommandWorkflows.Infrastructure.sln
+dotnet run --project CommandFlowEngine.TestApplication
+```
+
+## Notes
+
+- Current history store is in-memory: `InMemCommandHistoryService<TKey>`.
+- To persist across process restarts, replace `ICommandHistoryService<TKey>` with your own implementation.
+
+## License
+
+See [LICENSE](LICENSE).
